@@ -1,5 +1,3 @@
 # action-demo
 
-Repository to showcase Revy actions
-
-TODO: Add more info to readme
+Repository too showcase Revy actions
