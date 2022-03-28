@@ -1,0 +1,16 @@
+apiVersion: reviewpad.com/v0.0.1
+
+rules:
+  changesToMDFiles:
+    kind: patch
+    description: Patch contains changes to files with extension .md
+    spec: $filesExtensions([".md"])
+
+protectionGates:
+  - name: shipChangesToMD
+    description: Ship changes sto MD
+    patchRules:
+      - rule: changesToMDFiles
+    actions:
+      - $addLabel("ship")
+      - $merge("rebase")
