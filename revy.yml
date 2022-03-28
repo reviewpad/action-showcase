@@ -1,0 +1,15 @@
+apiVersion: reviewpad.com/v0.0.1
+
+rules:
+  tautology:
+    kind: patch
+    description: tautology
+    spec: true
+  
+protectionGates:
+  - name: test-label-pull-request
+    description: Label pull request with test
+    patchRules:
+      - rule: tautology
+    actions:
+      - $addLabel("test")
