@@ -1,5 +1,5 @@
 # action-demo
 
-Repository too showcase Revy actions
+Repository to showcase Revy actions
 
 # Section 1
