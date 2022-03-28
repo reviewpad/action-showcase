@@ -8,7 +8,7 @@ rules:
 
 protectionGates:
   - name: shipChangesToMD
-    description: Ship changes sto MD
+    description: Ship changes to MD
     patchRules:
       - rule: changesToMDFiles
     actions:
