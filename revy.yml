@@ -1,0 +1,68 @@
+apiVersion: reviewpad.com/v001
+
+groups:
+  seniors:
+    description: Group of senior devs
+    kind: developers
+    spec: '["ferreiratiago"]'
+
+  juniors:
+    description: Group of devs that have created less than 10 PRs
+    kind: developers
+    type: filter
+    param: dev
+    where: $totalCreatedPRs($dev) < 10
+
+rules:
+  changesToMDFiles:
+    kind: patch
+    description: Patch contains changes to files with extension .md
+    spec: $filesExtensions([".md"])
+
+  changesMainFile:
+    kind: patch
+    description: Patch contains changes to the main file
+    spec: $hasFileName("go/main.go")
+
+  authoredByJunior:
+    kind: author
+    description: Patch is authored by a junior dev
+    spec: $isMemberOf($name(), $group("juniors"))
+
+  isSmallPatch:
+    kind: patch
+    description: Patch has less than 90 changes and 6 files
+    spec: $size() < 90 && $fileCount() <= 5
+
+  changesCriticalCode:
+    description: Patch involves a critical method or function
+    kind: patch
+    spec: $hasAnnotation("critical")
+
+  callsQuicksort:
+    kind: patch
+    description: Patch contains the keyword quicksort
+    spec: $codeQuery("quicksort")
+
+protectionGates:
+  - name: critical
+    description: Modifications of critical code require careful review
+    patchRules:
+      - rule: changesCriticalCode
+      - rule: callsQuicksort
+      - rule: authoredByJunior
+      - rule: changesMainFile
+        extraActions:
+          - $assignReviewer(["marcelosousa"])
+    actions:
+      - $addLabel("priority")
+      - $assignReviewer($group("seniors"))
+
+  - name: ship
+    description: Ship process - bypass the review and automerge with rebase
+    patchRules:
+      - rule: changesToMDFiles
+      - rule: isSmallPatch
+    actions:
+      - $addLabel("ship")
+      - $merge("rebase")
