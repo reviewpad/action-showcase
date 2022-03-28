@@ -9,24 +9,23 @@ func quicksort(a []int) []int {
 		return a
 	}
 
-	left, right := 0, len(a)-1
+	low, high := 0, len(a)-1
 
 	pivot := rand.Int() % len(a)
 
-	a[pivot], a[right] = a[right], a[pivot]
+	a[pivot], a[high] = a[high], a[pivot]
 
 	for i := range a {
-		if a[i] < a[right] {
-			a[left], a[i] = a[i], a[left]
-			left++
+		if a[i] < a[high] {
+			a[low], a[i] = a[i], a[low]
+			low++
 		}
 	}
 
-	a[left], a[right] = a[right], a[left]
+	a[low], a[high] = a[high], a[low]
 
-	quicksort(a[:left])
-	quicksort(a[left+1:])
+	quicksort(a[:low])
+	quicksort(a[low+1:])
 
 	return a
 }
-
