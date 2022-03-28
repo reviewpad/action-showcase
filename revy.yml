@@ -1,0 +1,15 @@
+apiVersion: reviewpad.com/v0.0.1
+
+rules:
+  codeChangesImplySpecChanges:
+    kind: patch
+    description: Changes to src and not to spec
+    spec: $hasFilePattern("src/**") && !$hasFilePattern("docs/**")
+
+protectionGates:
+  - name: checkForSpecs
+    description: Check for specs
+    patchRules:
+      - rule: codeChangesImplySpecChanges
+    actions:
+      - $addLabel("missing-specs")
