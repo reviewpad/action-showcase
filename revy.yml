@@ -31,17 +31,21 @@ rules:
     spec: $size() > 300
   
 protectionGates:
-  - name: label-pull-request-with-size
-    description: Label pull request with size
+  - name: label-small-pull-request
+    description: Label small pull requests with size
     patchRules:
       - rule: isSmall
-        extraActions:
-          - $addLabel("small")
-      - rule: isMedium
-        extraActions: 
-          - $addLabel("medium")
-      - rule: isLarge
-        extraActions: 
-          - $addLabel("large")
     actions:
-      - $addLabel("v0.0.2")
+      - $addLabel("small")
+  - name: label-medium-pull-request
+    description: Label medium pull requests with size
+    patchRules:
+      - rule: isMedium
+    actions:
+      - $addLabel("medium")
+  - name: label-large-pull-request
+    description: Label large pull requests with size
+    patchRules:
+      - rule: isLarge
+    actions:
+      - $addLabel("large")
