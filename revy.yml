@@ -11,8 +11,6 @@ labels:
   large:
     description: large changes
     color: "8a2138"
-  v0.0.2:
-    description: reviewpad v0.0.2
 
 rules:
   isSmall:
