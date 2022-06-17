@@ -36,11 +36,11 @@ workflows:
     description: Label pull request with size
     if:
       - rule: isSmall
-        extraActions:
+        extra-actions:
           - $addLabel("small")
       - rule: isMedium
-        extraActions:
+        extra-actions:
           - $addLabel("medium")
       - rule: isLarge
-        extraActions:
+        extra-actions:
           - $addLabel("large")
