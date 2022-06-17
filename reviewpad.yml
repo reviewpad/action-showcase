@@ -25,6 +25,7 @@ workflows:
 
   - name: comment-on-empty-description
     description: Error on empty descriptions
+    always-run: true
     if:
       - rule: emptyDescription
     then:
