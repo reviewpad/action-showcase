@@ -1,0 +1,31 @@
+api-version: reviewpad.com/v1.x
+
+edition: team
+mode: verbose
+
+rules:
+  tautology:
+    kind: patch
+    description: tautology 
+    spec: true 
+
+  emptyDescription:
+    kind: patch
+    description: empty description
+    spec: '$description() == ""'
+
+workflows:
+  - name: comment-on-pull-request 
+    description: Example comment on pull request 
+    if:
+      - rule: tautology 
+    then:
+      - $info("Thanks for this pull request. @marcelosousa will take a look!")
+      - $warn("Please make sure the CI is green before merging.")
+
+  - name: comment-on-empty-description
+    description: Error on empty descriptions
+    if:
+      - rule: emptyDescription
+    then:
+      - $error("The description of the pull request cannot be empty") 
