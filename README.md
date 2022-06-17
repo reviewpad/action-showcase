@@ -2,4 +2,4 @@
 
 Repository that showcases Reviewpad workflows.
 
-Check out the list of pull requests for examples.
+**Check out the [list of pull requests](https://github.com/reviewpad/action-showcase/pulls).**
