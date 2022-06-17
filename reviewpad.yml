@@ -1,6 +1,6 @@
 api-version: reviewpad.com/v1.x
 
-edition: team
+edition: professional 
 mode: verbose
 
 rules:
