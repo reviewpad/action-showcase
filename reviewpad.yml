@@ -90,7 +90,7 @@ rules:
     # the spec of a rule is a boolean Aladino expression
     spec: $isElementOf($author(), $group("rising-stars"))
 
-  authored-by-seniors-or-seniors:
+  authored-by-owners-or-seniors:
     kind: patch
     description: Pull request was authored by senior or owner
     spec: $isElementOf($author(), $group("owners-and-seniors"))
@@ -168,7 +168,7 @@ rules:
   ship-condition:
     description: Ship rule for pull requests
     kind: patch
-    spec: '$rule("changes-to-md-files") && $rule("authored-by-seniors-or-seniors")'
+    spec: '$rule("changes-to-md-files") && $rule("authored-by-owners-or-seniors:")'
 
   unauthorized-changes-to-reviewpad:
     description: Unauthorized changes to the reviewpad.yml file
@@ -207,12 +207,17 @@ workflows:
       - rule: does-not-have-linear-history
         extra-actions:
           - '$info("This pull does not seem to have a linear history.")'
-      - rule: changes-to-md-files
-        extra-actions:
-          - '$info("@adrianoapmartins: there were some changes to the docs. can you take a look?")'
     then:
       - '$addLabel("lint-failed")'
   
+  - name: docs-workflow
+    description: Changes to the documentation
+    always-run: true
+    if:
+      - rule: changes-to-md-files
+    then:
+      - '$info("@adrianoapmartins: there were some changes to the docs. can you take a look?")'
+
   - name: unauthorized-modifications
     description: Protect unauthorized modifications
     if:
@@ -282,3 +287,10 @@ workflows:
       # Check out the parameters for the merge built-in at: 
       #    https://docs.reviewpad.com/docs/aladino-builtins#merge
       - '$merge()'
+
+  - name: review-of-seniors
+    description: Senior reviews have a lightweight review process
+    if:
+      - rule: authored-by-owners-or-seniors
+    then:
+      - '$assignRandomReviewer()'
