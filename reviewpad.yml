@@ -28,12 +28,16 @@ labels:
     color: "8b2122"
 
   rand-api:
-    description: label code that changes calls to the random api
+    description: label pull requests that change calls to the random api
     color: "8a2200"
 
   ship:
     description: label with ship pull requests which are automatically merged
     color: "76dbbe"
+
+  unauthorized:
+    description: label pull requests that make unauthorized modifications
+    color: "8a2200"
 
 # groups specifies a set of groups that can be used in the rules and workflows
 # there are two types of groups: static and dynamic, e.g. 'owners' is a static group
@@ -83,6 +87,7 @@ rules:
   authored-by-rising-stars:
     kind: patch
     description: Pull request was authored by a rising star
+    # the spec of a rule is a boolean Aladino expression
     spec: $isElementOf($author(), $group("rising-stars"))
 
   authored-by-seniors-or-seniors:
@@ -93,6 +98,7 @@ rules:
   bug-fix-with-wrong-head-branch:
     kind: patch
     description: The head branch of a bug fix should start with fix
+    # rules can be used in the definition of other rules via the $rule() built-in
     spec: '$rule("is-bug-fix") && !$contains($head(), "fix/")'
 
   bug-fix-without-linked-issue:
@@ -119,10 +125,25 @@ rules:
     description: Check if changes in the source files also occur in the tests files
     spec: '!$changed("go/@1.go", "go/@1_test.go")'
 
+  changes-to-main-file:
+    description: Changes to the main file
+    kind: patch
+    spec: '$hasFileName("go/main.go")'
+
   changes-to-md-files:
     kind: patch
     description: Patch only contains changes to files with extension .md
     spec: $hasFileExtensions([".md"])
+  
+  commit-count-is-high:
+    kind: patch
+    description: Check if the pull request has more than 5 commits
+    spec: '$commitCount() > 5'
+
+  does-not-have-linear-history:
+    kind: patch
+    description: Pull request does not have a linear history
+    spec: '$hasLinearHistory()'
 
   empty-description:
     kind: patch
@@ -134,16 +155,10 @@ rules:
     description: Bug fix
     spec: '$contains($title(), "bug:") || $isElementOf($labels(), "bug")'
 
-  large-pull-request:
+  is-large-pull-request:
     kind: patch
     description: Pull request is very large
     spec: '$size() > 1000 && $fileCount() > 20'
-
-  modifies-main-file:
-    description: Modifies main file
-    kind: patch
-    # the spec of a rule is a boolean Aladino expression
-    spec: '$hasFileName("go/main.go")'
 
   protect-rand-api:
     kind: patch
@@ -153,8 +168,12 @@ rules:
   ship-condition:
     description: Ship rule for pull requests
     kind: patch
-    # rules can be used in the definition of other rules via the $rule() built-in
     spec: '$rule("changes-to-md-files") && $rule("authored-by-seniors-or-seniors")'
+
+  unauthorized-changes-to-reviewpad:
+    description: Unauthorized changes to the reviewpad.yml file
+    kind: patch
+    spec: '$hasFileName("reviewpad.yml") && !$isElementOf($group("owners"), $author())'
 
 # workflows specifies a list of workflows; it is a list because the order of 
 # execution matters.
@@ -165,9 +184,11 @@ workflows:
     always-run: true
     if:
       - rule: empty-description
+        # if 'empty-description' is true, the 'extra-actions' property will be 
+        # executed after the main actions
         extra-actions:
           - '$error("Pull request has an empty description.")'
-      - rule: large-pull-request
+      - rule: is-large-pull-request
         extra-actions:
           - '$warn("This pull request is very large which will make it specially hard to review.")'
           - '$addLabel("large")'
@@ -176,20 +197,33 @@ workflows:
           - '$addLabel("bug")'
       - rule: bug-fix-without-linked-issue
         extra-actions:
-          - '$error("bug fix should have a linked issue")'
+          - '$error("Bug fixes should have a linked issue")'
       - rule: bug-fix-with-wrong-head-branch
         extra-actions:
-          - '$error("bug fix should be done in a branch starting with fix/")'
+          - '$error("Bug fixes should be done in a branch starting with fix/")'
+      - rule: commit-count-is-high
+        extra-actions:
+          - '$info("Every pull request should not have more than 2 commits. this pull request has more than 5!")'
+      - rule: does-not-have-linear-history
+        extra-actions:
+          - '$info("This pull does not seem to have a linear history.")'
     then:
       - '$addLabel("lint-failed")'
+  
+  - name: unauthorized-modifications
+    description: Protect unauthorized modifications
+    if:
+      - rule: unauthorized-changes-to-reviewpad
+    then:
+      - '$addLabel("unauthorized")'
+      - '$comment("This pull request makes unauthorized modifications. it will be automatically closed")'
+      - '$close()'
 
   - name: ask-mode
     description: Changes which require a careful review
     always-run: true
     if:
-      - rule: modifies-main-file
-        # if 'modifies-main-file' is true, the 'extra-actions' property will be 
-        # executed after the main actions
+      - rule: changes-to-main-file
         extra-actions:
           - '$warn("@marcelosousa: please review the change to go/main.go")'
       - rule: changes-critical-functions
@@ -205,7 +239,7 @@ workflows:
     if:
       - rule: protect-rand-api
     then:
-      - '$warn("looks like you have changed a call to the rand API. this will trigger a different review process")'
+      - '$warn("Looks like you have changed a call to the rand API. this will trigger a different review process")'
       - '$addLabel("rand-api")'
       - '$assignReviewer($group("seniors"))'
   
@@ -223,7 +257,7 @@ workflows:
     if:
       - rule: changes-to-code-in-tests
     then:
-      - '$warn("looks like you might be missing changes to some test files.")'
+      - '$warn("Looks like you might be missing changes to some test files.")'
 
   - name: mentor-rising-stars
     description: Mentors rising stars
