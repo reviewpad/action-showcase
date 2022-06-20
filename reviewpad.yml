@@ -10,14 +10,30 @@ mode: verbose
 # if they do not already exist
 labels:
   # the key is the name of the label
-  do-not-merge:
-    description: label pull requests that should not be merged
-    # color is the hexadecimal color code for the label, without the leading #
-    color: "294b65"
-
   critical-code:
     description: label critical code
+    # color is the hexadecimal color code for the label, without the leading #
     color: "8a2140"
+
+  do-not-merge:
+    description: label pull requests that should not be merged
+    color: "294b65"
+
+  large:
+    description: label large pull requests
+    color: "8b2120"
+
+  lint-failed:
+    description: label pull requests which are not properly formatted
+    color: "8b2122"
+
+  rand-api:
+    description: label code that changes calls to the random api
+    color: "8a2200"
+
+  ship:
+    description: label with ship pull requests which are automatically merged
+    color: "76dbbe"
 
 # groups specifies a set of groups that can be used in the rules and workflows
 # there are two types of groups: static and dynamic, e.g. 'owners' is a static group
@@ -38,13 +54,18 @@ groups:
     kind: developers
     spec: '["ferreiratiago"]'
 
-  ownersAndSeniors:
+  security-team:
+    description: Security team
+    kind: developers
+    spec: '["marcelosousa", "explore-dev-team"]'
+
+  owners-and-seniors:
     description: Group of owners and senior developers
     kind: developers
     # some groups can be defined using other groups
     spec: '$append($group("owners"), $group("seniors"))'
 
-  risingStars:
+  rising-stars:
     description: Group of developers with < 10 pull requests
     kind: developers
     # to define a dynamic group (of developers)
@@ -59,24 +80,168 @@ groups:
 # rules specifies a set of rules over pull requests to be used in the workflows
 rules:
   # the key is the name of the rule;
-  modifiesMainFile:
+  authored-by-rising-stars:
+    kind: patch
+    description: Pull request was authored by a rising star
+    spec: $isElementOf($author(), $group("rising-stars"))
+
+  authored-by-seniors-or-seniors:
+    kind: patch
+    description: Pull request was authored by senior or owner
+    spec: $isElementOf($author(), $group("owners-and-seniors"))
+
+  bug-fix-with-wrong-head-branch:
+    kind: patch
+    description: The head branch of a bug fix should start with fix
+    spec: '$rule("is-bug-fix") && !$contains($head(), "fix/")'
+
+  bug-fix-without-linked-issue:
+    kind: patch
+    description: Bug fix without linked issue
+    spec: '$rule("is-bug-fix") && !$hasLinkedIssues()'
+
+  changes-critical-functions:
+    kind: patch
+    description: Changes to functions considered critical 
+    # This spec uses a special built-in that understand which functions were commented
+    # with "reviewpad-an: critical"
+    spec: '$hasAnnotation("critical")'
+
+  change-freeze:
+    kind: patch
+    description: Change freeze is happening
+    # you can also use timestamps in the rule specification:
+    # https://docs.reviewpad.com/docs/timestamps
+    spec: '$createdAt() >= 2022-06-20'
+
+  changes-to-code-in-tests:
+    kind: patch
+    description: Check if changes in the source files also occur in the tests files
+    spec: '!$changed("go/@1.go", "go/@1_test.go")'
+
+  changes-to-md-files:
+    kind: patch
+    description: Patch only contains changes to files with extension .md
+    spec: $hasFileExtensions([".md"])
+
+  empty-description:
+    kind: patch
+    description: Pull request has an empty description
+    spec: '$title() == ""'
+
+  is-bug-fix:
+    kind: patch
+    description: Bug fix
+    spec: '$contains($title(), "bug:") || $isElementOf($labels(), "bug")'
+
+  large-pull-request:
+    kind: patch
+    description: Pull request is very large
+    spec: '$size() > 1000 && $fileCount() > 20'
+
+  modifies-main-file:
     description: Modifies main file
     kind: patch
     # the spec of a rule is a boolean Aladino expression
-    spec: '$hasFileName("src/main.go")'
+    spec: '$hasFileName("go/main.go")'
+
+  protect-rand-api:
+    kind: patch
+    description: Changes to the rand API
+    spec: '$codeQuery("rand.*")'
+
+  ship-condition:
+    description: Ship rule for pull requests
+    kind: patch
+    # rules can be used in the definition of other rules via the $rule() built-in
+    spec: '$rule("changes-to-md-files") && $rule("authored-by-seniors-or-seniors")'
 
 # workflows specifies a list of workflows; it is a list because the order of 
 # execution matters.
 workflows:
-  - name: ModifiedMainFile
-    description: Modifies the main file
+  - name: lint-workflow
+    description: Lint the pull request
     # always-run is a boolean property to control if this workflow should always be executed
     always-run: true
     if:
-      - rule: modifiedMainFile
-        # if 'modifiedMainFile' is true, the 'extra-actions' property will be 
+      - rule: empty-description
+        extra-actions:
+          - '$error("Pull request has an empty description.")'
+      - rule: large-pull-request
+        extra-actions:
+          - '$warn("This pull request is very large which will make it specially hard to review.")'
+          - '$addLabel("large")'
+      - rule: is-bug-fix
+        extra-actions:
+          - '$addLabel("bug")'
+      - rule: bug-fix-without-linked-issue
+        extra-actions:
+          - '$error("bug fix should have a linked issue")'
+      - rule: bug-fix-with-wrong-head-branch
+        extra-actions:
+          - '$error("bug fix should be done in a branch starting with fix/")'
+    then:
+      - '$addLabel("lint-failed")'
+
+  - name: ask-mode
+    description: Changes which require a careful review
+    always-run: true
+    if:
+      - rule: modifies-main-file
+        # if 'modifies-main-file' is true, the 'extra-actions' property will be 
         # executed after the main actions
         extra-actions:
-          - '$warn("@marcelosousa: check out this change")'
+          - '$warn("@marcelosousa: please review the change to go/main.go")'
+      - rule: changes-critical-functions
+        extra-actions:
+          - '$info("You have modified code that requires a security review.")'
+          - '$assignReviewer($group("security-team"))'
     then:
       - '$addLabel("critical-code")'
+
+  - name: protect-rand-api
+    description: Protect calls to the Random API
+    always-run: true
+    if:
+      - rule: protect-rand-api
+    then:
+      - '$warn("looks like you have changed a call to the rand API. this will trigger a different review process")'
+      - '$addLabel("rand-api")'
+      - '$assignReviewer($group("seniors"))'
+  
+  - name: change-freeze
+    description: Change freeze
+    always-run: true
+    if:
+      - rule: change-freeze
+    then:
+      - '$addLabel("do-not-merge")'
+
+  - name: test-changes
+    description: Warn of missing changes in the tests
+    always-run: true
+    if:
+      - rule: changes-to-code-in-tests
+    then:
+      - '$warn("looks like you might be missing changes to some test files.")'
+
+  - name: mentor-rising-stars
+    description: Mentors rising stars
+    always-run: true
+    if:
+      - rule: authored-by-rising-stars
+    then:
+      - '$info("Thank you for this pull request!")'
+      # Assign another rising star and a senior to review this pull request
+      - '$assignReviewer($group("rising-stars"), 1)'
+      - '$assignReviewer($group("seniors"), 1)'
+
+  - name: Ship
+    description: Smart merge certain pull requests
+    if:
+      - rule: ship-condition
+    then:
+      - '$addLabel("ship")'
+      # Check out the parameters for the merge built-in at: 
+      #    https://docs.reviewpad.com/docs/aladino-builtins#merge
+      - '$merge()'
