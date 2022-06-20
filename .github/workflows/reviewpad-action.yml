@@ -1,0 +1,11 @@
+name: Reviewpad Action
+on:
+  pull_request
+
+jobs:
+  reviewpad-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Running reviewpad action
+        # Set version v1.x to automatically receive minor and patch updates
+        uses: reviewpad/action@v1.x

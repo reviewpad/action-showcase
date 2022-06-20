@@ -1,0 +1,82 @@
+api-version: reviewpad.com/v1.x
+
+# edition can be team (open-source built-ins) or professional (all available built-ins)
+edition: professional
+
+# mode can be either silent (no explanation) or verbose
+mode: verbose
+
+# labels specifies a map of labels that will be created in the GitHub repository 
+# if they do not already exist
+labels:
+  # the key is the name of the label
+  do-not-merge:
+    description: label pull requests that should not be merged
+    # color is the hexadecimal color code for the label, without the leading #
+    color: "294b65"
+
+  critical-code:
+    description: label critical code
+    color: "8a2140"
+
+# groups specifies a set of groups that can be used in the rules and workflows
+# there are two types of groups: static and dynamic, e.g. 'owners' is a static group
+# and 'risingStars' is a dynamic group
+groups:
+  # the key is the name of the group;
+  # this group is a list of logins in GitHub and can be accessed 
+  # via the $group() built-in, e.g. $group("owners")
+  owners:
+    description: Group of owners
+    kind: developers
+    # the spec of a group is an Aladino expression that evaluates to a list of strings
+    # you can directly specify the group with the list notation
+    spec: '["marcelosousa"]'
+
+  seniors:
+    description: Group of senior developers
+    kind: developers
+    spec: '["ferreiratiago"]'
+
+  ownersAndSeniors:
+    description: Group of owners and senior developers
+    kind: developers
+    # some groups can be defined using other groups
+    spec: '$append($group("owners"), $group("seniors"))'
+
+  risingStars:
+    description: Group of developers with < 10 pull requests
+    kind: developers
+    # to define a dynamic group (of developers)
+    # we use the type 'filter'
+    type: filter
+    # define a name to the parameter
+    param: dev
+    # the where property is a boolean expression that can 
+    # now use the param 'dev' as an aladino variable '$dev'
+    where: $totalCreatedPRs($dev) < 10
+
+# rules specifies a set of rules over pull requests to be used in the workflows
+rules:
+  # the key is the name of the rule;
+  modifiesMainFile:
+    description: Modifies main file
+    kind: patch
+    # the spec of a rule is a boolean Aladino expression
+    spec: '$hasFileName("src/main.go")'
+
+# workflows specifies a list of workflows; it is a list because the order of 
+# execution matters.
+workflows:
+  - name: ModifiedMainFile
+    description: Modifies the main file
+    # always-run is a boolean property to control if this workflow should always be executed
+    always-run: true
+    if:
+      - rule: modifiedMainFile
+        # if 'modifiedMainFile' is true, the 'extra-actions' property will be 
+        # executed after the main actions
+        extra-actions:
+          - '$warn("@marcelosousa: check out this change")'
+    then:
+      - '$addLabel("critical-code")'
