@@ -207,6 +207,9 @@ workflows:
       - rule: does-not-have-linear-history
         extra-actions:
           - '$info("This pull does not seem to have a linear history.")'
+      - rule: changes-to-md-files
+        extra-actions:
+          - '$info("@adrianoapmartins: there were some changes to the docs. can you take a look?")'
     then:
       - '$addLabel("lint-failed")'
   
