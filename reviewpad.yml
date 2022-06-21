@@ -227,12 +227,12 @@ workflows:
     description: Label pull request with size
     always-run: true
     if:
-      - rule: isSmall
+      - rule: is-small
         extra-actions:
-          - $addLabel("small")
-      - rule: isMedium
+          - '$addLabel("small")'
+      - rule: is-medium
         extra-actions: 
-          - $addLabel("medium")
+          - '$addLabel("medium")'
       - rule: is-large-pull-request
         extra-actions:
           - '$warn("This pull request is very large which will make it specially hard to review.")'
