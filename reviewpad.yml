@@ -62,7 +62,7 @@ groups:
     kind: developers
     spec: '["marcelosousa", "explore-dev-team"]'
 
-  - name: owners-and-seniors:
+  - name: owners-and-seniors
     description: Group of owners and senior developers
     kind: developers
     # some groups can be defined using other groups
