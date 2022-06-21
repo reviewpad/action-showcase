@@ -1,4 +1,4 @@
-api-version: reviewpad.com/v1.x
+api-version: reviewpad.com/v2.x
 
 # edition can be team (open-source built-ins) or professional (all available built-ins)
 edition: professional
