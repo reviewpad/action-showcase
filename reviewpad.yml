@@ -86,12 +86,12 @@ rules:
     kind: patch
     description: Pull request was authored by a rising star
     # the spec of a rule is a boolean Aladino expression
-    spec: $isElementOf($author(), $group("rising-stars"))
+    spec: $isElementOf($group("rising-stars"), $author())
 
   - name: authored-by-owners-or-seniors
     kind: patch
     description: Pull request was authored by senior or owner
-    spec: $isElementOf($author(), $group("owners-and-seniors"))
+    spec: $isElementOf($group("owners-and-seniors"), $author())
 
   - name: bug-fix-with-wrong-head-branch
     kind: patch
