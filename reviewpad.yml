@@ -161,7 +161,7 @@ rules:
   - name: protect-rand-api
     kind: patch
     description: Changes to the rand API
-    spec: '$codeQuery("rand.*")'
+    spec: '$hasCodePattern("rand.*")'
 
   - name: ship-condition
     description: Ship rule for pull requests
