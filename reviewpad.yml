@@ -141,7 +141,7 @@ rules:
   - name: does-not-have-linear-history
     kind: patch
     description: Pull request does not have a linear history
-    spec: '$hasLinearHistory()'
+    spec: '!$hasLinearHistory()'
 
   - name: empty-description
     kind: patch
