@@ -19,6 +19,15 @@ labels:
     description: label pull requests that should not be merged
     color: "294b65"
 
+  small:
+    description: small changes
+    # color is the hexadecimal color code for the label, without the leading #.
+    color: "294b69"
+
+  medium:
+    description: medium changes
+    color: "a8c3f7"
+
   large:
     description: label large pull requests
     color: "8b2120"
@@ -158,6 +167,16 @@ rules:
     description: Pull request is very large
     spec: '$size() > 1000 && $fileCount() > 20'
 
+  - name: is-medium
+    kind: patch
+    description: Pull request is medium
+    spec: '$size() > 30 && $size() < 300'
+
+  - name: is-small
+    kind: patch
+    description: Pull request is small
+    spec: '$size() <= 30'
+
   - name: protect-rand-api
     kind: patch
     description: Changes to the rand API
@@ -186,10 +205,6 @@ workflows:
         # executed after the main actions
         extra-actions:
           - '$error("Pull request has an empty description.")'
-      - rule: is-large-pull-request
-        extra-actions:
-          - '$warn("This pull request is very large which will make it specially hard to review.")'
-          - '$addLabel("large")'
       - rule: is-bug-fix
         extra-actions:
           - '$addLabel("bug")'
@@ -207,7 +222,22 @@ workflows:
           - '$info("This pull does not seem to have a linear history.")'
     then:
       - '$addLabel("lint-failed")'
-  
+
+  - name: label-pull-request-with-size
+    description: Label pull request with size
+    always-run: true
+    if:
+      - rule: isSmall
+        extra-actions:
+          - $addLabel("small")
+      - rule: isMedium
+        extra-actions: 
+          - $addLabel("medium")
+      - rule: is-large-pull-request
+        extra-actions:
+          - '$warn("This pull request is very large which will make it specially hard to review.")'
+          - '$addLabel("large")'
+
   - name: docs-workflow
     description: Changes to the documentation
     always-run: true
@@ -276,7 +306,7 @@ workflows:
       - '$assignReviewer($group("rising-stars"), 1)'
       - '$assignReviewer($group("seniors"), 1)'
 
-  - name: Ship
+  - name: ship
     description: Smart merge certain pull requests
     if:
       - rule: ship-condition
