@@ -166,7 +166,7 @@ rules:
   - name: ship-condition
     description: Ship rule for pull requests
     kind: patch
-    spec: '$rule("changes-to-md-files") && $rule("authored-by-owners-or-seniors:")'
+    spec: '$rule("changes-to-md-files") && $rule("authored-by-owners-or-seniors")'
 
   - name: unauthorized-changes-to-reviewpad
     description: Unauthorized changes to the reviewpad.yml file
