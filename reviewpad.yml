@@ -78,7 +78,7 @@ groups:
     param: dev
     # the where property is a boolean expression that can 
     # now use the param 'dev' as an aladino variable '$dev'
-    where: $totalCreatedPRs($dev) < 10
+    where: $totalCreatedPullRequests($dev) < 10
 
 # rules specifies a set of rules over pull requests to be used in the workflows
 rules:
