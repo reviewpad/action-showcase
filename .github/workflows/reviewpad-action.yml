@@ -8,4 +8,4 @@ jobs:
     steps:
       - name: Running reviewpad action
         # Set version v1.x to automatically receive minor and patch updates
-        uses: reviewpad/action@v1.x
+        uses: reviewpad/action@canary

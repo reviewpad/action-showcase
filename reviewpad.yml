@@ -41,12 +41,12 @@ labels:
 
 # groups specifies a set of groups that can be used in the rules and workflows
 # there are two types of groups: static and dynamic, e.g. 'owners' is a static group
-# and 'risingStars' is a dynamic group
+# and 'rising-stars' is a dynamic group
 groups:
   # the key is the name of the group;
   # this group is a list of logins in GitHub and can be accessed 
   # via the $group() built-in, e.g. $group("owners")
-  aowners:
+  owners:
     description: Group of owners
     kind: developers
     # the spec of a group is an Aladino expression that evaluates to a list of strings
@@ -67,7 +67,7 @@ groups:
     description: Group of owners and senior developers
     kind: developers
     # some groups can be defined using other groups
-    spec: '$append($group("aowners"), $group("seniors"))'
+    spec: '$append($group("owners"), $group("seniors"))'
 
   rising-stars:
     description: Group of developers with < 10 pull requests
@@ -173,7 +173,7 @@ rules:
   unauthorized-changes-to-reviewpad:
     description: Unauthorized changes to the reviewpad.yml file
     kind: patch
-    spec: '$hasFileName("reviewpad.yml") && !$isElementOf($group("aowners"), $author())'
+    spec: '$hasFileName("reviewpad.yml") && !$isElementOf($group("owners"), $author())'
 
 # workflows specifies a list of workflows; it is a list because the order of 
 # execution matters.
