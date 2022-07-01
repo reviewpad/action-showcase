@@ -17,6 +17,6 @@ workflows:
     if:
       - rule: isFirstTimeContributor
     then:
-      # Comment on pull request once
+      # Just add the message that you would like to show to the first contributor
       - '$commentOnce("Thanks for opening a PR. Please check out our PR guidelines here:...")'
 
