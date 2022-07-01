@@ -13,6 +13,7 @@ rules:
 workflows:
   - name: welcome-user
     description: Welcome user first contribution
+    always-run: true
     if:
       - rule: isFirstTimeContributor
     then:
