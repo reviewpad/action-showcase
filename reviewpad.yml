@@ -1,0 +1,21 @@
+api-version: reviewpad.com/v2.x
+
+edition: professional
+
+mode: silent
+
+rules:
+  - name: isFirstTimeContributor
+    kind: patch
+    description: first pull request
+    spec: "$totalCreatedPullRequests($author()) == 1"
+
+workflows:
+  - name: welcome-user
+    description: Welcome user first contribution
+    if:
+      - rule: isFirstTimeContributor
+    then:
+      # Comment on pull request once
+      - '$commentOnce("Thanks for opening a PR. Please check out our PR guidelines here:...")'
+
