@@ -1,0 +1,34 @@
+api-version: reviewpad.com/v3.x
+
+edition: professional
+
+rules:
+  - name: is-small
+    kind: patch
+    description: small pull request
+    spec: '$size() <= 50'
+
+  - name: is-medium
+    kind: patch
+    description: medium-sized pull request
+    spec: '$size() > 50 && $size() <= 150'
+
+  - rule: is-large
+    kind: patch
+    description: large-sized pull request
+    spec: '$size() > 150'
+
+workflows:
+  - name: label-pull-request-with-size
+    description: Label pull request with size
+    if:
+      - rule: is-small
+        extra-actions:
+          - $addLabel("small")
+      - rule: is-medium
+        extra-actions:
+          - $addLabel("medium")
+      - rule: is-large
+        extra-actions:
+          - $addLabel("large")
+

@@ -1,0 +1,18 @@
+api-version: reviewpad.com/v3.x
+
+edition: professional
+
+rules:
+  - name: tautology 
+    kind: patch
+    description: small pull request
+    spec: 'true'
+
+workflows:
+  - name: label-pull-request-team-a
+    description: Label pull request with team a 
+    if:
+      - rule: tautology 
+    then:
+      - $addLabel("team-a")
+
