@@ -1,9 +1,9 @@
-name: Reviewpad Action
+name: Reviewpad Action Default
 on:
   pull_request
 
 jobs:
-  reviewpad-action:
+  reviewpad-action-default:
     runs-on: ubuntu-latest
     steps:
       - name: Running reviewpad action

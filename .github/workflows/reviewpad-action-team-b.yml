@@ -1,11 +1,11 @@
-name: Reviewpad Action
+name: Reviewpad Action Team B
 on:
-  pull_request
+  pull_request:
     paths:
       - 'team-b/**'
 
 jobs:
-  reviewpad-action:
+  reviewpad-action-team-b:
     runs-on: ubuntu-latest
     steps:
       - name: Running reviewpad action
