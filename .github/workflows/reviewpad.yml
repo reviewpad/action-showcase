@@ -1,0 +1,11 @@
+name: Reviewpad Action Default
+on:
+  pull_request:
+    types: [ "labeled", "unlabeled", "open", "edited", "synchronize", "converted_to_draft", "ready_for_review", "review_requested", "review_request_removed"]
+
+jobs:
+  reviewpad-action-default:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Running reviewpad action
+        uses: reviewpad/action@v3.x

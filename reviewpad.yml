@@ -1,0 +1,28 @@
+api-version: reviewpad.com/v3.x
+
+# edition can be team (open-source built-ins) or professional (all available built-ins)
+edition: professional
+
+# mode can be either silent (no explanation) or verbose
+mode: verbose
+
+# rules specifies a set of rules over pull requests to be used in the workflows
+rules:
+  - name: empty-description
+    kind: patch
+    description: Pull request has an empty description
+    spec: '$title() == ""'
+
+# workflows specifies a list of workflows; it is a list because the order of 
+# execution matters.
+workflows:
+  - name: lint-workflow
+    description: Lint the pull request
+    # always-run is a boolean property to control if this workflow should always be executed
+    always-run: true
+    if:
+      - rule: empty-description
+        # if 'empty-description' is true, the 'extra-actions' property will be 
+        # executed after the main actions
+        extra-actions:
+          - '$error("Pull request has an empty description.")'
