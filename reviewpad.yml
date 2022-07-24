@@ -11,7 +11,7 @@ rules:
   - name: empty-description
     kind: patch
     description: Pull request has an empty description
-    spec: '$title() == ""'
+    spec: '$description() == ""'
 
 # workflows specifies a list of workflows; it is a list because the order of 
 # execution matters.
