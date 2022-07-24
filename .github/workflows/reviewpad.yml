@@ -1,7 +1,7 @@
 name: Reviewpad Action Default
 on:
   pull_request:
-    types: [ "labeled", "unlabeled", "open", "edited", "synchronize", "converted_to_draft", "ready_for_review", "review_requested", "review_request_removed"]
+    types: [ "labeled", "unlabeled", "opened", "edited", "synchronize", "converted_to_draft", "ready_for_review", "review_requested", "review_request_removed"]
 
 jobs:
   reviewpad-action-default:
