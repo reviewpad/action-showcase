@@ -26,3 +26,4 @@ workflows:
         # executed after the main actions
         extra-actions:
           - '$error("Pull request has an empty description.")'
+          - '$fail("Failing because it has an error")'
