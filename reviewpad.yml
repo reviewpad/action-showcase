@@ -13,6 +13,16 @@ rules:
     description: Pull request has an empty description
     spec: '$description() == ""'
 
+  - name: is-draft
+    kind: patch
+    description: is draft
+    spec: '$isDraft()'
+
+  - name: tautology
+    kind: patch
+    description: always true
+    spec: 'true'
+
 # workflows specifies a list of workflows; it is a list because the order of 
 # execution matters.
 workflows:
@@ -26,3 +36,12 @@ workflows:
         # executed after the main actions
         extra-actions:
           - '$error("Pull request has an empty description.")'
+      - rule: is-draft
+        extra-actions:
+          - '$disableActions(["assignReviewer"])'
+
+  - name: assign-reviewer
+    if:
+       - rule: tautology
+    then:
+       - '$assignReviewer(["ferreiratiago"])'
