@@ -8,20 +8,9 @@ mode: verbose
 
 # rules specifies a set of rules over pull requests to be used in the workflows
 rules:
-  - name: empty-description
+  - name: description
     kind: patch
-    description: Pull request has an empty description
-    spec: '$description() == ""'
-
-  - name: is-draft
-    kind: patch
-    description: is draft
-    spec: '$isDraft()'
-
-  - name: tautology
-    kind: patch
-    description: always true
-    spec: 'true'
+    spec: '$contains($description(), "[x]: Ship")'
 
 # workflows specifies a list of workflows; it is a list because the order of 
 # execution matters.
@@ -31,17 +20,6 @@ workflows:
     # always-run is a boolean property to control if this workflow should always be executed
     always-run: true
     if:
-      - rule: empty-description
-        # if 'empty-description' is true, the 'extra-actions' property will be 
-        # executed after the main actions
+      - rule: description
         extra-actions:
-          - '$error("Pull request has an empty description.")'
-      - rule: is-draft
-        extra-actions:
-          - '$disableActions(["assignReviewer"])'
-
-  - name: assign-reviewer
-    if:
-       - rule: tautology
-    then:
-       - '$assignReviewer(["ferreiratiago"])'
+          - '$info("Pull request has ship in the description.")'
