@@ -67,7 +67,7 @@ jobs:
       - run: echo 'Testing...'
       - name: Dump GitHub context
         id: github_context_step
-        run: echo ${{ toJSON(github) }}
+        run: echo '${{ replace(toJSON(github), "'", "\\'") }}'
       - name: Dump job context
         run: echo '${{ toJSON(job) }}'
       - name: Dump steps context
