@@ -1,0 +1,13 @@
+api-version: reviewpad.com/v3.x
+
+mode: silent
+edition: professional
+
+pipelines:
+  - name: assign-reviewers
+    stages:
+      - actions:
+           - '$assignReviewer(["reviewpad-bot"])'
+        until: '$reviewerStatus("reviewpad-bot") == "APPROVED"'
+      - actions:
+           - '$assignReviewer(["ferreiratiago"])'
