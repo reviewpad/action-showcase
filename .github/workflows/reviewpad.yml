@@ -14,4 +14,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Running reviewpad action
-        uses: reviewpad/action-dev:dev_pipelines
+        uses: reviewpad/action@dev/pipelines
