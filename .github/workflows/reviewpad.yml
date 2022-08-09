@@ -1,0 +1,24 @@
+name: Reviewpad
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - converted_to_draft
+      - edited
+  pull_request_review:
+  workflow_run:
+    workflows: ["Pull Request Build"]
+    types:
+      - completed
+
+jobs:
+  reviewpad:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reviewpad
+        uses: reviewpad/action@external/config_by_url
+
