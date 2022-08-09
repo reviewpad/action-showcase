@@ -22,4 +22,4 @@ jobs:
       - name: Reviewpad
         uses: reviewpad/action@external/config_by_url
         with:
-          file_url: "https://gitlab.com/reviewpad/reviewpad/blob/main/reviewpad.yml"
+          file_url: "https://github.com/reviewpad/reviewpad/blob/incorrectbranch/reviewpad.yml"
