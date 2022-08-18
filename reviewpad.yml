@@ -23,6 +23,7 @@ workflows:
           - $addLabel("small")
           - $info("this is an info message")
           - $warn("this is a warning message")
+          - $error("this is an error message")
       - rule: is-medium
         extra-actions:
           - $addLabel("medium")
