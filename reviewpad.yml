@@ -1,5 +1,7 @@
 api-version: reviewpad.com/v3.x
 
+mode: silent
+
 rules:
   - name: is-small
     kind: patch
