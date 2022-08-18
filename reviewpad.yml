@@ -1,0 +1,27 @@
+api-version: reviewpad.com/v3.x
+
+rules:
+  - name: is-small
+    kind: patch
+    spec: $size() <= 50
+
+  - name: is-medium
+    kind: patch
+    spec: $size() > 50 && $size() <= 150
+
+  - rule: is-large
+    kind: patch
+    spec: $size() > 150
+
+workflows:
+  - name: label-pull-request-with-size
+    if:
+      - rule: is-small
+        extra-actions:
+          - $addLabel("small")
+      - rule: is-medium
+        extra-actions:
+          - $addLabel("medium")
+      - rule: is-large
+        extra-actions:
+          - $addLabel("large")
