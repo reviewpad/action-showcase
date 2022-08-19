@@ -17,6 +17,7 @@ rules:
 
 workflows:
   - name: label-pull-request-with-size
+    always-run: true
     if:
       - rule: is-small
         extra-actions:
@@ -30,3 +31,8 @@ workflows:
       - rule: is-large
         extra-actions:
           - $addLabel("large")
+
+  - name: has-annotation
+    if: '$hasAnnotation("critical")'
+    then:
+      - $info("this is a critical message")
