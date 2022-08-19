@@ -33,6 +33,7 @@ workflows:
           - $addLabel("large")
 
   - name: has-annotation
-    if: '$hasAnnotation("critical")'
+    if: 
+      - '$hasAnnotation("critical")'
     then:
       - $info("this is a critical message")
