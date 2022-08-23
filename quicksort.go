@@ -8,7 +8,7 @@ func quicksort(a []int) []int {
 		return a
 	}
 
-	left, right := 0, len(a)-1
+	left, right := 0, len(a)
 
 	pivot := rand.Int() % len(a)
 
