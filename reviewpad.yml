@@ -1,0 +1,44 @@
+api-version: reviewpad.com/v3.x
+
+mode: silent
+
+rules:
+  - name: is-small
+    kind: patch
+    spec: $size() <= 50
+
+  - name: is-medium
+    kind: patch
+    spec: $size() > 50 && $size() <= 150
+
+  - name: is-large
+    kind: patch
+    spec: $size() > 150
+  
+  - name: empty-description
+    kind: patch
+    spec: $description() == ""
+
+workflows:
+  - name: empty-description
+    on:
+      - "issue"
+      - "pull_request"
+    always-run: true
+    if:
+      - rule: empty-description
+        extra-actions:
+          - '$error("The description is empty. Please add more information!")'
+
+  - name: label-pull-request-with-size
+    always-run: true
+    if:
+      - rule: is-small
+        extra-actions:
+          - $addLabel("small")
+      - rule: is-medium
+        extra-actions:
+          - $addLabel("medium")
+      - rule: is-large
+        extra-actions:
+          - $addLabel("large")
