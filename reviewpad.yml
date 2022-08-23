@@ -2,6 +2,14 @@ api-version: reviewpad.com/v3.x
 
 mode: silent
 
+groups:
+  - name: newJoiners
+    description: Group of developers that have created less than 50 PRs
+    kind: developers
+    type: filter
+    param: developer
+    where: $totalCreatedPullRequests($developer) < 50
+
 rules:
   - name: is-small
     kind: patch
@@ -14,8 +22,46 @@ rules:
   - name: is-large
     kind: patch
     spec: $size() > 150
+  
+  - name: new-joiner-and-large-pull-request
+    kind: patch
+    spec: $isElementOf($author(), $group("newJoiners")) && $rule("is-large")
+
+  - name: tautology
+    kind: patch
+    description: Always true
+    spec: 'true'
+
+  - name: does-not-have-linear-history
+    kind: patch
+    description: Does not have linear history
+    spec: '!$hasLinearHistory()'
 
 workflows:
+  - name: welcome-first-time-contributors
+    always-run: true
+    if:
+      - '$totalCreatedPullRequests($author()) == 1'
+    then:
+      - '$commentOnce($sprintf("Welcome @%v! Thank you for your first contribution.", [$author()]))'
+
+  - name: new-joiners-workflows
+    if: 
+      - rule: new-joiner-and-large-pull-request
+    then:
+      - '$info("You need to do something!")'
+
+  - name: lint-commits
+    description: Lint commit messages 
+    always-run: true
+    if:
+      - rule: does-not-have-linear-history
+        extra-actions:
+          - '$warn("This pull request does not have linear history - please fix this!")'
+      - rule: tautology
+        extra-actions:
+          - '$commitLint()'
+
   - name: label-pull-request-with-size
     always-run: true
     if:
