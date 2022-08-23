@@ -2,14 +2,6 @@ api-version: reviewpad.com/v3.x
 
 mode: silent
 
-groups:
-  - name: newJoiners
-    description: Group of developers that have created less than 50 PRs
-    kind: developers
-    type: filter
-    param: developer
-    where: $totalCreatedPullRequests($developer) < 50
-
 rules:
   - name: is-small
     kind: patch
@@ -23,88 +15,19 @@ rules:
     kind: patch
     spec: $size() > 150
   
-  - name: new-joiner-and-large-pull-request
-    kind: patch
-    spec: $isElementOf($author(), $group("newJoiners")) && $rule("is-medium")
-
-  - name: tautology
-    kind: patch
-    description: Always true
-    spec: 'true'
-
-  - name: does-not-have-linear-history
-    kind: patch
-    description: Does not have linear history
-    spec: '!$hasLinearHistory()'
-
-  - name: has-reviewpad-in-the-diff
-    kind: patch
-    description: Patch contains the word Reviewpad
-    spec: $hasCodePattern("Reviewpad")
-
-  - name: changesCriticalCode
-    description: Patch involves a critical method or function
-    kind: patch
-    spec: $hasAnnotation("critical")
-
-  - name: changesSecurityCode
-    description: Patch involves a critical method or function
-    kind: patch
-    spec: $hasAnnotation("security")
-
-  - name: touchesPlugins
-    kind: patch
-    description: Modifies the plugin functions
-    spec: '$hasFilePattern("plugins/**")'
-
-  - name: changes-are-in-markdown
-    kind: patch
-    description: Verifies if changes are only in markdown files
-    spec: '$hasFileExtensions([".md"])'
+  - name: empty-description
+    spec: $description() == ""
 
 workflows:
-  - name: test-semantic
+  - name: empty-description
+    on:
+      - "issue"
+      - "pull_request"
     always-run: true
     if:
-      - rule: has-reviewpad-in-the-diff
+      - rule: empty-description
         extra-actions:
-          - '$info("Has reviewpad in the diff")'
-      - rule: changesCriticalCode
-        extra-actions:
-          - '$info("Has critical changes")'
-      - rule: changesSecurityCode
-        extra-actions:
-          - '$info("Has security changes")'
-      - rule: touchesPlugins
-        extra-actions:
-          - '$info("Touches plugins")'
-      - rule: changes-are-in-markdown
-        extra-actions:
-          - '$info("Changes are in the markdown")'
-
-  - name: welcome-first-time-contributors
-    always-run: true
-    if:
-      - '$totalCreatedPullRequests($author()) == 1'
-    then:
-      - '$commentOnce($sprintf("Welcome @%v! Thank you for your first contribution.", [$author()]))'
-
-  - name: new-joiners-workflows
-    if: 
-      - rule: new-joiner-and-large-pull-request
-    then:
-      - '$info("You need to do something!")'
-
-  - name: lint-commits
-    description: Lint commit messages 
-    always-run: true
-    if:
-      - rule: does-not-have-linear-history
-        extra-actions:
-          - '$warn("This pull request does not have linear history - please fix this!")'
-      - rule: tautology
-        extra-actions:
-          - '$commitLint()'
+          - '$error("The description is empty. Please add more information!")'
 
   - name: label-pull-request-with-size
     always-run: true
@@ -112,19 +35,9 @@ workflows:
       - rule: is-small
         extra-actions:
           - $addLabel("small")
-          - $info("this is an info message")
-          - $warn("this is a warning message")
-          - $error("this is an error message")
-          - $fail("this is an error message")
       - rule: is-medium
         extra-actions:
           - $addLabel("medium")
       - rule: is-large
         extra-actions:
           - $addLabel("large")
-
-  - name: has-annotation
-    if: 
-      - '$hasAnnotation("critical")'
-    then:
-      - $info("this is a critical message")

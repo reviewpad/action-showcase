@@ -1,24 +1,12 @@
 name: Main test action
 
 on:
+  issues:
   pull_request:
     types:
-        - assigned
-        - unassigned
-        - labeled
-        - unlabeled
         - opened
         - edited
-        - reopened
         - synchronize
-        - converted_to_draft
-        - ready_for_review
-        - locked
-        - unlocked
-        - review_requested
-        - review_request_removed
-        - auto_merge_enabled
-        - auto_merge_disabled
   pull_request_review:
   pull_request_review_comment:
 
@@ -27,4 +15,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run reviewpad action
-        uses: reviewpad/action@canary
+        uses: reviewpad/action@experimental
