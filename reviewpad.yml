@@ -16,6 +16,7 @@ rules:
     spec: $size() > 150
   
   - name: empty-description
+    kind: patch
     spec: $description() == ""
 
 workflows:
