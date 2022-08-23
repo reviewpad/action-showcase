@@ -25,7 +25,7 @@ rules:
   
   - name: new-joiner-and-large-pull-request
     kind: patch
-    spec: $isElementOf($author(), $group("newJoiners")) && $rule("is-large")
+    spec: $isElementOf($author(), $group("newJoiners")) && $rule("is-medium")
 
   - name: tautology
     kind: patch
@@ -37,7 +37,51 @@ rules:
     description: Does not have linear history
     spec: '!$hasLinearHistory()'
 
+  - name: has-reviewpad-in-the-diff
+    kind: patch
+    description: Patch contains the word Reviewpad
+    spec: $hasCodePattern("Reviewpad")
+
+  - name: changesCriticalCode
+    description: Patch involves a critical method or function
+    kind: patch
+    spec: $hasAnnotation("critical")
+
+  - name: changesSecurityCode
+    description: Patch involves a critical method or function
+    kind: patch
+    spec: $hasAnnotation("security")
+
+  - name: touchesPlugins
+    kind: patch
+    description: Modifies the plugin functions
+    spec: '$hasFilePattern("plugins/**")'
+
+  - name: changes-are-in-markdown
+    kind: patch
+    description: Verifies if changes are only in markdown files
+    spec: '$hasFileExtensions([".md"])'
+
 workflows:
+  - name: test-semantic
+    always-run: true
+    if:
+      - rule: has-reviewpad-in-the-diff
+        extra-actions:
+          - '$info("Has reviewpad in the diff")'
+      - rule: changesCriticalCode
+        extra-actions:
+          - '$info("Has critical changes")'
+      - rule: changesSecurityCode
+        extra-actions:
+          - '$info("Has security changes")'
+      - rule: touchesPlugins
+        extra-actions:
+          - '$info("Touches plugins")'
+      - rule: changes-are-in-markdown
+        extra-actions:
+          - '$info("Changes are in the markdown")'
+
   - name: welcome-first-time-contributors
     always-run: true
     if:
@@ -71,6 +115,7 @@ workflows:
           - $info("this is an info message")
           - $warn("this is a warning message")
           - $error("this is an error message")
+          - $fail("this is an error message")
       - rule: is-medium
         extra-actions:
           - $addLabel("medium")
