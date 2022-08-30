@@ -9,10 +9,10 @@ workflows:
       - rule: $size() <= 10
         extra-actions:
           - $addLabel("small")
-      - rule: $size() > 50 && $size() <= 150
+      - rule: $size() > 10 && $size() <= 100
         extra-actions:
           - $addLabel("medium")
-      - rule: $size() > 150
+      - rule: $size() > 100
         extra-actions:
           - $addLabel("large")
 
