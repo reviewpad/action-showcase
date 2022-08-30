@@ -15,6 +15,10 @@ func TestQuicksort(t *testing.T) {
 			args:    []int{5, 6, 7, 2, 1},
 			wantVal: []int{1, 2, 5, 6, 7},
 		},
+		"2 test": {
+			args:    []int{6, 5},
+			wantVal: []int{5, 6},
+		},
 	}
 
 	for name, test := range tests {
