@@ -26,3 +26,9 @@ workflows:
     then: 
       - '$error("The description is empty. Please add more information!")'
 
+  - name: changes-to-file
+    always-run: true
+    if:
+      - '!$changed("go/@1.go", "go/@1_test.go")'
+    then:
+      - '$info("forgot to change tests")'
