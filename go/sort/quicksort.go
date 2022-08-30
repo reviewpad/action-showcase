@@ -6,7 +6,7 @@ import "math/rand"
 // Code taken from https://www.golangprograms.com/golang-program-for-implementation-of-quick-sort.html
 // Added another comment
 func Quicksort(a []int) []int {
-	if len(a) < 3 {
+	if len(a) < 2 {
 		return a
 	}
 
