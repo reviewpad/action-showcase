@@ -1,0 +1,35 @@
+version: "3"
+
+tasks:
+  format:
+    summary: |
+      Formats Go files.
+      Run with --watch or -w to watch for changes on Go files.
+    cmds:
+      - gofmt -s -w .
+    sources:
+      - ./**/*.go
+
+  build:
+    summary: |
+      Builds Go files.
+      Run with --watch or -w to watch for changes on Go files.
+    cmds:
+      - go build -o action-showcase-go
+    sources:
+      - ./**/*.go
+
+  test:
+    summary: |
+      Runs unit tests with coverage
+      Run with --watch or -w to watch for changes on _test.go files.
+    cmds:
+      - gotestsum -- -coverprofile=coverage.out ./...
+    sources:
+      - ./**/*_test.go
+
+  check:
+    deps:
+      - format
+      - build
+      - test
