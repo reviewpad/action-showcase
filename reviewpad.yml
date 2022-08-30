@@ -26,6 +26,21 @@ workflows:
     then: 
       - '$error("The description is empty. Please add more information!")'
 
+  - name: go-live-process
+    always-run: true
+    if:
+      - '$moved("@1/qa/@2", "@1/prod/@2")'
+    then:
+      - '$addLabel("LGTM")'
+      - '$merge()'
+
+  - name: critical-code
+    always-run: true
+    if:
+      - '$hasAnnotation("critical")'
+    then:
+      - '$info("This pull request changes critical code")'
+
   - name: changes-to-file
     always-run: true
     if:
