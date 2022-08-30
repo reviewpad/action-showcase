@@ -22,7 +22,7 @@ workflows:
       - "pull_request"
     always-run: true
     if:
-      - rule: empty-description
-        extra-actions:
-          - '$error("The description is empty. Please add more information!")'
+      - $description() == ""
+    then: 
+      - '$error("The description is empty. Please add more information!")'
 
