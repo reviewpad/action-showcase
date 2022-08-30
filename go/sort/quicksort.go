@@ -5,7 +5,7 @@ import "math/rand"
 // reviewpad-an: critical
 // Code taken from https://www.golangprograms.com/golang-program-for-implementation-of-quick-sort.html
 func Quicksort(a []int) []int {
-	if len(a) < 2 {
+	if len(a) < 3 {
 		return a
 	}
 
