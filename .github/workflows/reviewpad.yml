@@ -2,6 +2,7 @@
 name: Reviewpad
 
 on:
+  push:
   issues:
     types:
       - opened
